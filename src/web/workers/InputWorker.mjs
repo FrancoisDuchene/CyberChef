@@ -442,18 +442,21 @@ self.updateTabHeader = function(inputNum) {
  *
  * @param {object} inputData
  * @param {number} inputData.inputNum - The input to get the data for
+ * @param {number} inputData.scrollPos - The position of the ScrollBar
  * @param {boolean} inputData.silent - If false, the manager statechange event will be fired
  */
 self.setInput = function(inputData) {
     const inputNum = inputData.inputNum;
     const silent = inputData.silent;
+    const scrollPos = inputData.scrollPos;
     const input = self.getInputObj(inputNum);
     if (input === undefined || input === null) return;
 
     let inputVal = input.data;
     const inputObj = {
         inputNum: inputNum,
-        input: inputVal
+        input: inputVal,
+        scrollPos: scrollPos
     };
     if (typeof inputVal !== "string") {
         inputObj.name = inputVal.name;
@@ -546,6 +549,7 @@ self.updateInputProgress = function(inputData) {
  *
  * @param {object} inputData
  * @param {number} inputData.inputNum - The input that's having its value updated
+ * @param {number} inputData.scrollPos - The scrollbar position for inputNum
  * @param {string | ArrayBuffer} inputData.value - The new value of the input
  * @param {boolean} inputData.force - If true, still updates the input value if the input type is different to the stored value
  */
@@ -565,6 +569,7 @@ self.updateInputValue = function(inputData) {
         self.inputs[inputNum].progress = 100;
         return;
     }
+    const scrollPos = (inputData.scrollPos === undefined) ? 0 : inputData.scrollPos;
 
     // If we get to here, an input for inputNum could not be found,
     // so create a new one. Only do this if the value is a string, as
@@ -572,6 +577,7 @@ self.updateInputValue = function(inputData) {
     if (typeof value === "string") {
         self.inputs.push({
             inputNum: inputNum,
+            scrollPos: scrollPos,
             data: value,
             status: "loaded",
             progress: 100
@@ -657,7 +663,7 @@ self.handleLoaderMessage = function(r) {
         self.terminateLoaderWorker(r.id);
         self.activateLoaderWorker();
 
-        self.setInput({inputNum: inputNum, silent: true});
+        self.setInput({inputNum: inputNum, scrollPos: 0, silent: true});
         return;
     }
 
@@ -791,13 +797,13 @@ self.loadFiles = function(filesData) {
     }
 
     self.getLoadProgress();
-    self.setInput({inputNum: activeTab, silent: true});
+    self.setInput({inputNum: activeTab, scrollPos: 0, silent: true});
 };
 
 /**
  * Adds an input to the input dictionary
  *
- * @param {boolean} [changetab=false] - Whether or not to change to the new input
+ * @param {boolean} [changeTab=false] - Whether or not to change to the new input
  * @param {string} type - Either "string" or "file"
  * @param {Object} fileData - Contains information about the file to be added to the input (only used when type is "file")
  * @param {string} fileData.name - The filename of the input being added

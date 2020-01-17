@@ -328,6 +328,7 @@ class InputWaiter {
      * @param {object} inputData - Object containing the input and its metadata
      * @param {number} inputData.inputNum - The unique inputNum for the selected input
      * @param {string | object} inputData.input - The actual input data
+     * @param {number} inputData.scrollPos - The position of the scrolltab
      * @param {string} inputData.name - The name of the input file
      * @param {number} inputData.size - The size in bytes of the input file
      * @param {string} inputData.type - The MIME type of the input file
@@ -358,6 +359,7 @@ class InputWaiter {
                 inputText.style.overflow = "auto";
                 inputText.classList.remove("blur");
                 inputText.scroll(0, 0);
+                inputText.scrollTop = inputData.scrollPos;
 
                 const lines = inputData.input.length < (this.app.options.ioDisplayThreshold * 1024) ?
                     inputData.input.count("\n") + 1 : null;
@@ -1010,6 +1012,7 @@ class InputWaiter {
                 action: "setInput",
                 data: {
                     inputNum: inputNum,
+                    scrollPos: 0,
                     silent: true
                 }
             });
@@ -1166,8 +1169,9 @@ class InputWaiter {
      *
      * @param {number} inputNum - The inputNum of the new tab
      * @param {boolean} [changeTab=true] - If true, changes to the new tab once it's been added
+     * @param {number} scrollPos - To remember the position of the ScrollBar
      */
-    addTab(inputNum, changeTab = true) {
+    addTab(inputNum, changeTab = true, scrollPos = 0) {
         const tabsWrapper = document.getElementById("input-tabs"),
             numTabs = tabsWrapper.children.length;
 
@@ -1208,6 +1212,7 @@ class InputWaiter {
             action: "setInput",
             data: {
                 inputNum: activeTab,
+                scrollPos: 1,
                 silent: true
             }
         });
